@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f4ee" />
+    <title>MarketLens JP</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="rail" aria-label="メインナビゲーション">
+        <div class="brand">
+          <span class="brand-mark">ML</span>
+          <span class="brand-name">MarketLens JP</span>
+        </div>
+        <nav class="rail-nav">
+          <button class="nav-button active" data-target="disclosures" type="button">開示</button>
+          <button class="nav-button" data-target="calendar" type="button">予定</button>
+          <button class="nav-button" data-target="watch" type="button">銘柄</button>
+          <button class="nav-button" data-target="connectors" type="button">連携</button>
+        </nav>
+        <button class="icon-button theme-toggle" id="themeToggle" type="button" aria-label="テーマ切替">
+          <span>○</span>
+        </button>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">広告なし / 無料 / PWA</p>
+            <h1>日本株イベントダッシュボード</h1>
+          </div>
+          <div class="topbar-actions">
+            <label class="search-field">
+              <span>検索</span>
+              <input id="globalSearch" type="search" placeholder="銘柄コード・会社名・タイトル" autocomplete="off" />
+            </label>
+            <button class="primary-button" id="addWatchButton" type="button">
+              <span>＋</span>
+              <span>銘柄追加</span>
+            </button>
+          </div>
+        </header>
+
+        <section class="summary-grid" aria-label="マーケット概要">
+          <article class="summary-card market-card">
+            <div class="card-head">
+              <span class="status-dot" id="marketDot"></span>
+              <span id="marketStatusLabel">判定中</span>
+            </div>
+            <strong id="marketClock">--:--</strong>
+            <p id="marketSessionText">JST</p>
+          </article>
+          <article class="summary-card">
+            <span class="metric-label">未読の重要開示</span>
+            <strong id="unreadHighCount">0</strong>
+            <div class="sparkline" aria-hidden="true">
+              <i style="height: 34%"></i>
+              <i style="height: 58%"></i>
+              <i style="height: 45%"></i>
+              <i style="height: 70%"></i>
+              <i style="height: 50%"></i>
+              <i style="height: 84%"></i>
+            </div>
+          </article>
+          <article class="summary-card">
+            <span class="metric-label">今日の予定</span>
+            <strong id="todayEventCount">0</strong>
+            <p id="nextEventText">次の予定を読込中</p>
+          </article>
+          <article class="summary-card accent-card">
+            <span class="metric-label">ウォッチ銘柄</span>
+            <strong id="watchCount">0</strong>
+            <p id="watchSummary">保存済み</p>
+          </article>
+        </section>
+
+        <section class="workspace active-section" id="disclosures">
+          <div class="panel wide-panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">TDnet / EDINET</p>
+                <h2>適時開示フィード</h2>
+              </div>
+              <div class="segmented" id="categoryFilters" aria-label="開示カテゴリ">
+                <button class="active" data-category="all" type="button">全て</button>
+                <button data-category="決算" type="button">決算</button>
+                <button data-category="業績修正" type="button">修正</button>
+                <button data-category="配当" type="button">配当</button>
+                <button data-category="資本政策" type="button">資本</button>
+                <button data-category="M&A" type="button">M&A</button>
+              </div>
+            </div>
+
+            <div class="filter-row">
+              <button class="filter-chip active" data-priority="all" type="button">全重要度</button>
+              <button class="filter-chip" data-priority="high" type="button">重要</button>
+              <button class="filter-chip" data-priority="watch" type="button">ウォッチのみ</button>
+              <button class="filter-chip" data-priority="unread" type="button">未読</button>
+            </div>
+
+            <div class="disclosure-list" id="disclosureList" aria-live="polite"></div>
+          </div>
+
+          <aside class="panel detail-panel" id="detailPanel" aria-label="開示詳細"></aside>
+        </section>
+
+        <section class="workspace" id="calendar">
+          <div class="panel calendar-panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Market Calendar</p>
+                <h2>重要イベント</h2>
+              </div>
+              <div class="calendar-actions">
+                <button class="secondary-button" id="prevMonth" type="button">‹</button>
+                <strong id="calendarTitle">2026年6月</strong>
+                <button class="secondary-button" id="nextMonth" type="button">›</button>
+                <button class="primary-button compact" id="exportIcs" type="button">ICS</button>
+              </div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid" aria-label="月間カレンダー"></div>
+          </div>
+          <aside class="panel event-panel">
+            <div class="section-head compact-head">
+              <div>
+                <p class="eyebrow">Upcoming</p>
+                <h2>近い予定</h2>
+              </div>
+            </div>
+            <div class="event-list" id="eventList"></div>
+          </aside>
+        </section>
+
+        <section class="workspace" id="watch">
+          <div class="panel wide-panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Portfolio</p>
+                <h2>ウォッチリスト</h2>
+              </div>
+              <button class="primary-button" id="addWatchButtonSecondary" type="button">
+                <span>＋</span>
+                <span>追加</span>
+              </button>
+            </div>
+            <div class="watch-grid" id="watchGrid"></div>
+          </div>
+          <aside class="panel alert-panel">
+            <div class="section-head compact-head">
+              <div>
+                <p class="eyebrow">Rules</p>
+                <h2>通知ルール</h2>
+              </div>
+            </div>
+            <div class="toggle-list">
+              <label>
+                <span>重要開示</span>
+                <input type="checkbox" checked />
+              </label>
+              <label>
+                <span>決算発表前日</span>
+                <input type="checkbox" checked />
+              </label>
+              <label>
+                <span>業績修正</span>
+                <input type="checkbox" checked />
+              </label>
+              <label>
+                <span>市場休日</span>
+                <input type="checkbox" />
+              </label>
+            </div>
+            <div class="quiet-box">
+              <span>通知時間</span>
+              <strong>08:10 / 15:45</strong>
+            </div>
+          </aside>
+        </section>
+
+        <section class="workspace" id="connectors">
+          <div class="panel wide-panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Data Sources</p>
+                <h2>データ連携</h2>
+              </div>
+              <span class="sample-badge" id="dataModeBadge">API確認中</span>
+            </div>
+            <div class="connector-grid" id="connectorGrid"></div>
+          </div>
+          <aside class="panel settings-panel">
+            <div class="section-head compact-head">
+              <div>
+                <p class="eyebrow">Endpoint</p>
+                <h2>取得先</h2>
+              </div>
+            </div>
+            <label class="input-stack">
+              <span>開示JSON</span>
+              <input id="tdnetEndpoint" type="url" placeholder="https://example.com/disclosures.json" />
+            </label>
+            <label class="input-stack">
+              <span>予定JSON</span>
+              <input id="calendarEndpoint" type="url" placeholder="https://example.com/calendar.json" />
+            </label>
+            <button class="primary-button full" id="saveEndpoints" type="button">保存</button>
+          </aside>
+        </section>
+      </main>
+
+      <nav class="mobile-nav" aria-label="モバイルナビゲーション">
+        <button class="nav-button active" data-target="disclosures" type="button">開示</button>
+        <button class="nav-button" data-target="calendar" type="button">予定</button>
+        <button class="nav-button" data-target="watch" type="button">銘柄</button>
+        <button class="nav-button" data-target="connectors" type="button">連携</button>
+      </nav>
+    </div>
+
+    <dialog id="watchDialog" class="modal">
+      <form method="dialog">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Add Ticker</p>
+            <h2>銘柄追加</h2>
+          </div>
+          <button class="icon-button" value="cancel" type="submit" aria-label="閉じる">×</button>
+        </div>
+        <label class="input-stack">
+          <span>証券コード</span>
+              <input id="watchCodeInput" inputmode="latin" maxlength="5" placeholder="7203 / 241A" />
+        </label>
+        <label class="input-stack">
+          <span>会社名</span>
+          <input id="watchNameInput" placeholder="会社名" />
+        </label>
+        <button class="primary-button full" id="saveWatch" value="default" type="submit">保存</button>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>

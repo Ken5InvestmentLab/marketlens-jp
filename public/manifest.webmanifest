@@ -1,0 +1,13 @@
+{
+  "name": "MarketLens JP",
+  "short_name": "MarketLens",
+  "description": "日本株の適時開示と市場イベントを確認する無料PWA",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f7f6",
+  "theme_color": "#087f73",
+  "lang": "ja",
+  "orientation": "portrait-primary",
+  "categories": ["finance", "productivity"],
+  "icons": []
+}

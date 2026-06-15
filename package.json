@@ -1,0 +1,18 @@
+{
+  "name": "marketlens-jp",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8787",
+    "deploy": "wrangler deploy --minify",
+    "check": "node --check public/app.js && node --check public/sw.js && node --check src/worker.js && wrangler deploy --dry-run",
+    "test:parser": "node test/tdnet-parser.test.js"
+  },
+  "devDependencies": {
+    "wrangler": "latest"
+  },
+  "overrides": {
+    "esbuild": "0.28.1"
+  }
+}
