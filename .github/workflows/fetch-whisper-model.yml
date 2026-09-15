@@ -1,4 +1,4 @@
-name: Fetch Whisper Small Model
+name: Fetch Whisper Base Model
 
 on:
   push:
@@ -9,14 +9,14 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
-      - name: Download small multilingual q5 model
+      - name: Download base multilingual q5 model
         run: |
-          curl -L --fail --retry 5 --retry-delay 3             -o ggml-small-q5_1.bin             https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small-q5_1.bin
-          ls -lh ggml-small-q5_1.bin
+          curl -L --fail --retry 5 --retry-delay 3             -o ggml-base-q5_1.bin             https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base-q5_1.bin
+          ls -lh ggml-base-q5_1.bin
       - name: Upload model
         uses: actions/upload-artifact@v4
         with:
-          name: whisper-small-q5
-          path: ggml-small-q5_1.bin
+          name: whisper-base-q5
+          path: ggml-base-q5_1.bin
           compression-level: 0
           retention-days: 1
