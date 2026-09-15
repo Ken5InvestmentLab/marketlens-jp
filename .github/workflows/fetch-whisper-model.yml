@@ -1,4 +1,4 @@
-name: Fetch Whisper Model Split
+name: Build Stable Whisper CLI
 
 on:
   push:
@@ -6,25 +6,26 @@ on:
       - '.github/workflows/fetch-whisper-model.yml'
 
 jobs:
-  fetch-model:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Download Whisper model
+      - name: Clone whisper.cpp stable
         run: |
-          curl -L --fail --retry 5 --retry-delay 3             -o ggml-large-v3-turbo-q5_0.bin             https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin
-          split -b 290M -d -a 2 ggml-large-v3-turbo-q5_0.bin whisper-model.part-
-          ls -lh whisper-model.part-*
-      - name: Upload part 00
+          git clone --depth 1 --branch v1.7.6 https://github.com/ggml-org/whisper.cpp.git whisper-src
+      - name: Build
+        run: |
+          cmake -S whisper-src -B whisper-src/build -DCMAKE_BUILD_TYPE=Release -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON
+          cmake --build whisper-src/build --config Release -j2
+      - name: Package runtime
+        run: |
+          cd whisper-src
+          find build -type f \( -name 'whisper-cli' -o -name 'main' -o -name '*.so' -o -name '*.so.*' \) -print0 | tar --null -T - -czf ../whisper-v1.7.6-runtime.tar.gz
+          cd ..
+          ls -lh whisper-v1.7.6-runtime.tar.gz
+      - name: Upload runtime
         uses: actions/upload-artifact@v4
         with:
-          name: whisper-model-part-00
-          path: whisper-model.part-00
-          compression-level: 0
-          retention-days: 1
-      - name: Upload part 01
-        uses: actions/upload-artifact@v4
-        with:
-          name: whisper-model-part-01
-          path: whisper-model.part-01
+          name: whisper-v1.7.6-runtime
+          path: whisper-v1.7.6-runtime.tar.gz
           compression-level: 0
           retention-days: 1
