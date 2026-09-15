@@ -1,0 +1,22 @@
+name: Fetch Whisper Model
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fetch-whisper-model.yml'
+
+jobs:
+  fetch-model:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Whisper model
+        run: |
+          curl -L --fail --retry 5 --retry-delay 3             -o ggml-large-v3-turbo-q5_0.bin             https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin
+          ls -lh ggml-large-v3-turbo-q5_0.bin
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: whisper-large-v3-turbo-q5
+          path: ggml-large-v3-turbo-q5_0.bin
+          compression-level: 0
+          retention-days: 1
